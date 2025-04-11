@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Form</title>
-    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/style.css" />
   </head>
   <body>
     <div class="login-container">
@@ -33,7 +33,16 @@
         </div>
         <button type="submit" class="login-btn">
           <!-- icon hehe -->
-          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="btn-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
             <polyline points="10 17 15 12 10 7"></polyline>
             <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -47,17 +56,39 @@
       <div class="copy-buttons">
         <button id="emails-btn" class="copy-btn">
           <!-- icon hehe -->
-          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="btn-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            <path
+              d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+            ></path>
           </svg>
           Copy Emails
         </button>
         <button id="passwords-btn" class="copy-btn">
           <!-- icon hehe -->
-          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="btn-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            <path
+              d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+            ></path>
           </svg>
           Copy Passwords
         </button>
@@ -75,24 +106,24 @@
 
           try {
             const response = await fetch(
-              "http://localhost:9000/api/authV/login",
+              "http://localhost:9000/api/auth/login",
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                 },
+                credentials: "include", // IMPORTANT: this lets the session cookie be stored
                 body: JSON.stringify({ email, password }),
               }
             );
 
             // Check if the response is OK
             if (response.ok) {
-              const data = await response.json();
-              localStorage.setItem("token", data.token);
-              alert("Login successful! Here is your Flag : XSGSG232CXZC");
+              // Handle success, typically by redirecting or updating UI
+              window.location.href = "/my-account"; // Or other actions after login
             }
             // stuff related to rate limiter
-             else {
+            else {
               // Handle HTTP errors (e.g., 400, 429, 500)
               let errorMessage = "Login failed";
 
@@ -130,7 +161,8 @@
 
           // Visual feedback
           const btn = document.getElementById(btnId);
-          const originalText = btnId === "emails-btn" ? "Copy Emails" : "Copy Passwords";
+          const originalText =
+            btnId === "emails-btn" ? "Copy Emails" : "Copy Passwords";
           btn.textContent = "Copied!";
           setTimeout(() => {
             // Restore the button with icon
