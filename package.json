@@ -9,13 +9,15 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
+    "cookie-session": "^2.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
@@ -23,5 +25,14 @@
   },
   "devDependencies": {
     "gh-pages": "^6.3.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/detsabirde/cyber-security-assignment-2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/detsabirde/cyber-security-assignment-2/issues"
+  },
+  "homepage": "https://github.com/detsabirde/cyber-security-assignment-2#readme",
+  "description": ""
 }
