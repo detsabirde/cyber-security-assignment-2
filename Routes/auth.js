@@ -79,6 +79,7 @@ router.post("/register", async (req, res) => {
  * @access public
  *
  **/
+// Login route
 router.post("/login", loginLimiter, async (req, res) => {
   // Validation
   const { error } = validateLoginUser(req.body);
@@ -108,22 +109,24 @@ router.post("/login", loginLimiter, async (req, res) => {
     // Store user info in session (excluding password)
     req.session.user = {
       id: user._id,
-      email: user.email,
-      name: user.name, // or any fields you want to store
+      username: user.username,
+      isAdmin: user.isAdmin, // or any fields you want to store
     };
-
+    console.log("Session after login:", req.session.user);
     // Optional: remove password from response
     const { password, ...userData } = user._doc;
 
-    // Send response
+    // Send response and redirect to /my-account
     res.status(200).json({
       message: "Login successful",
-      user: userData
-    }).redirect("/my-account");
+      user: userData,
+      redirectTo: "/my-account",
+    }) // This will redirect after login
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "An internal server error occurred" });
   }
 });
+
 
 module.exports = router;
