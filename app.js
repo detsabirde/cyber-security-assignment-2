@@ -5,8 +5,18 @@ const authPath = require("./Routes/auth");
 const authPathV = require("./Routes/authV");
 const logger = require("./middlewares/logger");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
+const {verifySession} =require("./middlewares/verifySession")
 const dotenv = require("dotenv");
 dotenv.config();
+const cors = require("cors");
+app.use(cors({
+  origin: "http://localhost:5500", // or whatever your frontend origin is
+  credentials: true
+}));
+// new
+const session = require("express-session");
+
+// new
 
 // Online Connect to MongoDB
 mongoose
@@ -22,6 +32,19 @@ mongoose
 // Initialize app
 const app = express();
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 60 * 60 * 1000, // 1 hour
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    },
+  })
+);
+
 app.use(express.static(path.resolve(__dirname, "pages")));
 // middlewares
 app.use(express.json());
@@ -29,7 +52,15 @@ app.use(logger);
 
 // Login route form
 app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "pages", "login.html"));
+  res.sendFile(path.resolve(__dirname, "pages", "index.html"));
+});
+//
+app.get("/my-account",verifySession, (req, res) => {
+ return res.sendFile(path.resolve(__dirname, "pages", "account.html"));
+});
+
+app.get("/login", (req, res) => {
+  return res.sendFile(path.resolve(__dirname, "pages", "login.html"));
 });
 
 // Routes

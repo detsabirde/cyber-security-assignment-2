@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-const rateLimit = require('express-rate-limit');
-const jwt = require('jsonwebtoken'); // Add JWT for token generation
+const rateLimit = require("express-rate-limit");
+const jwt = require("jsonwebtoken"); // Add JWT for token generation
 const {
   User,
   validateLoginUser,
@@ -56,7 +56,9 @@ router.post("/register", async (req, res) => {
     const result = await user.save();
 
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     // Exclude password from response
     const { password, ...userData } = result._doc;
@@ -95,20 +97,29 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 
     // Check password
-    const isPasswordMatch = await bcrypt.compare(req.body.password, user.password);
+    const isPasswordMatch = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
     if (!isPasswordMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Store user info in session (excluding password)
+    req.session.user = {
+      id: user._id,
+      email: user.email,
+      name: user.name, // or any fields you want to store
+    };
 
-    // Exclude password from response
+    // Optional: remove password from response
     const { password, ...userData } = user._doc;
-    userData.token = token;
 
     // Send response
-    res.status(200).json(userData);
+    res.status(200).json({
+      message: "Login successful",
+      user: userData
+    }).redirect("/my-account");
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "An internal server error occurred" });
