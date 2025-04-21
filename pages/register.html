@@ -84,7 +84,7 @@
 
           try {
             const response = await fetch(
-              "http://localhost:9000/api/authV/register",
+              "http://localhost:9000/api/auth/register",
               {
                 method: "POST",
                 headers: {
@@ -96,9 +96,9 @@
 
             if (response.ok) {
               const data = await response.json();
-              localStorage.setItem("token", data.token);
+              
               alert("Registration successful! You can now login.");
-              window.location.href = "login.html";
+              window.location.href = "/my-account";
             } else {
               let errorMessage = "Registration failed";
               try {
