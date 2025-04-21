@@ -88,6 +88,24 @@
     </style>
   </head>
   <body>
+    <div
+      id="toast"
+      style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+        z-index: 1000;
+      "
+    ></div>
+
     <div class="admin-container">
       <h2>Admin Dashboard</h2>
       <div class="user-info">
@@ -109,6 +127,9 @@
         <div class="user-actions">
           <button class="action-btn role-btn" onclick="changeUserRole()">
             Upgrade User
+          </button>
+          <button class="action-btn role-btn" onclick="DownGradeUserRole()">
+            DownGrade User
           </button>
           <button class="action-btn delete-btn" onclick="deleteSelectedUser()">
             Delete User
@@ -168,6 +189,52 @@
 
       // Function to change user role
       function changeUserRole() {
+        const userSelect = document.getElementById("userSelect");
+        const userId = userSelect.value;
+
+        if (!userId) {
+          alert("Please select a user first");
+          return;
+        }
+
+        const user = users.find((u) => u._id === userId);
+        if (!user) {
+          alert("User not found.");
+          return;
+        }
+
+        fetch("/api/auth/upgradeUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            username: user.username,
+            userId: user._id,
+            action: "upgrade",
+          }),
+        })
+          .then((response) => {
+            //  insert html in case of response
+            return response.text().then((text) => {
+              const contentType = response.headers.get("Content-Type");
+              if (contentType && contentType.includes("text/html")) {
+                document.open();
+                document.write(text);
+                document.close();
+              } else {
+                const data = JSON.parse(text);
+                console.log("Response:", data);
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      // Function to downgrade user role
+      function DownGradeUserRole() {
   const userSelect = document.getElementById("userSelect");
   const userId = userSelect.value;
 
@@ -182,7 +249,7 @@
     return;
   }
 
-  fetch("/api/auth/upgradeUser", {
+  fetch("/api/auth/downGradeUser", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -190,28 +257,21 @@
     body: new URLSearchParams({
       username: user.username,
       userId: user._id,
-      action: "upgrade",
+      action: "downgrade",
     }),
   })
-    .then((response) => {
-      //  insert html in case of response 
-      return response.text().then((text) => {
-        const contentType = response.headers.get("Content-Type");
-        if (contentType && contentType.includes("text/html")) {
-          document.open();
-          document.write(text);
-          document.close();
-        } else {
-          const data = JSON.parse(text);
-          console.log("Response:", data);
-        }
-      });
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message) {
+        fetchUsers(); // Refresh user list
+        showToast(data.message);
+      }
     })
     .catch((error) => {
       console.error("Error:", error);
+      showToast("An error occurred.", "#dc3545");
     });
 }
-
 
       // Function to delete selected user
       function deleteSelectedUser() {
@@ -253,6 +313,17 @@
           .catch((error) => {
             console.error("Error logging out:", error);
           });
+      }
+      //
+      function showToast(message, bgColor = "#28a745") {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.style.background = bgColor;
+        toast.style.opacity = 1;
+
+        setTimeout(() => {
+          toast.style.opacity = 0;
+        }, 3000); // disappears after 3 seconds
       }
     </script>
   </body>
