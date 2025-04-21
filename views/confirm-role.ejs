@@ -57,7 +57,6 @@
         </p>
       </div>
       <form id="confirmForm">
-        <input type="hidden" name="userId" value="<%= userId %>" />
         <input type="hidden" name="username" value="<%= username %>" />
         <input type="hidden" name="role" value="<%= role %>" />
         <a href="/my-account" class="button cancel-btn">No, take me back</a>
@@ -78,7 +77,6 @@
             },
             body: new URLSearchParams({
               username: formData.get("username"),
-              userId: formData.get("userId"),
               action: "upgrade",
               confirmed: true,
             }),

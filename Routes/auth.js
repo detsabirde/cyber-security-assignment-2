@@ -141,22 +141,24 @@ router.post("/login", async (req, res) => {
 router.post("/upgradeUser", async (req, res) => {
   const { username, action, confirmed } = req.body;
   // vaunrable
+  console.log("first test");
+  
   if (!confirmed && (!req.session?.user || req.session.user.role !== "Admin")) {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
-
+  console.log("seconde test");
   if (!username && !action) {
     return res.status(400).json({ message: "Please select a user." });
   }
-
+  console.log("third test");
   // serve confirmation page
   if (!confirmed) {
     return res.render("confirm-role", {
       username,
-      role: "Admin",
+      role: "Admin"
     });
   }
-
+  console.log("fourth test");
   try {
     const user = await User.findOne({ username });
 
@@ -190,7 +192,6 @@ router.post("/upgradeUser", async (req, res) => {
  **/
 router.post("/downGradeUser", async (req, res) => {
   const { username, action } = req.body;
-  console.log(`${username},${userId},${action}`);
 
   if (!req.session?.user || req.session.user.role !== "Admin") {
     return res.status(403).json({ message: "Access denied. Admins only." });
