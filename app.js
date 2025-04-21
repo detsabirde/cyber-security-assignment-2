@@ -24,10 +24,14 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(logger);
 // Static Pages
 app.use(express.static(path.resolve(__dirname, "pages")));
-
+// ejs
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 /**
  *  important stuf
  **/
