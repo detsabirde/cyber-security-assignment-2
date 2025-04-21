@@ -140,19 +140,17 @@ router.post("/login", async (req, res) => {
  **/
 router.post("/upgradeUser", async (req, res) => {
   const { username, userId, action, confirmed } = req.body;
- console.log(`${username},${userId} ,${action} ${confirmed}`);
+  console.log(`${username},${userId},${action},${confirmed}`);
 
-
-    
   if (!confirmed && (!req.session?.user || req.session.user.role !== "Admin")) {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
-  // Check for missing fields
+
   if (!username && !userId && !action) {
     return res.status(400).json({ message: "Please select a user." });
   }
-  
-  // serve confirmation page 
+
+  // serve confirmation page
   if (!confirmed) {
     return res.render("confirm-role", {
       username,
@@ -162,8 +160,8 @@ router.post("/upgradeUser", async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId);
-    
+    const user = await User.findOne({ username });
+
     if (!user) {
       return res.status(404).json({ message: "User does not exist." });
     }
@@ -184,6 +182,7 @@ router.post("/upgradeUser", async (req, res) => {
     return res.status(500).json({ message: "Something went wrong." });
   }
 });
+
 /**
  * @desc  downGrade user
  * @route /api/auth/upgradeUser
@@ -193,24 +192,19 @@ router.post("/upgradeUser", async (req, res) => {
  **/
 router.post("/downGradeUser", async (req, res) => {
   const { username, userId, action, confirmed } = req.body;
- console.log(`${username},${userId} ,${action}`);
+  console.log(`${username},${userId},${action}`);
 
-
-    
-  if ((!req.session?.user || req.session.user.role !== "Admin")) {
+  if (!req.session?.user || req.session.user.role !== "Admin") {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
-  // Check for missing fields
+
   if (!username && !userId && !action) {
     return res.status(400).json({ message: "Please select a user." });
   }
-  
-  // serve confirmation page 
-
 
   try {
-    const user = await User.findById(userId);
-    
+    const user = await User.findOne({ username });
+
     if (!user) {
       return res.status(404).json({ message: "User does not exist." });
     }
@@ -231,6 +225,7 @@ router.post("/downGradeUser", async (req, res) => {
     return res.status(500).json({ message: "Something went wrong." });
   }
 });
+
 
 
 /**
