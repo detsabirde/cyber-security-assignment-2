@@ -9,5 +9,11 @@ function verifySession(req, res, next) {
   }
 }
 
-module.exports = { verifySession };
-  module.exports = { verifySession };
+const redirectIfAuthenticated = (req, res, next) => {
+  if (req.session.user) {
+    return res.redirect("/my-account");
+  }
+  next();
+};
+
+module.exports = { verifySession, redirectIfAuthenticated };
