@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Role Change</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .confirm-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .confirm-btn {
+            background: #007bff;
+            color: white;
+        }
+        .confirm-btn:hover {
+            background: #0056b3;
+        }
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+        .cancel-btn:hover {
+            background: #5a6268;
+        }
+        .user-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirm-container">
+        <h1>Are you sure?</h1>
+        <div class="user-info">
+            <p>You are about to change the role of <strong id="username"></strong> to <strong id="newRole"></strong></p>
+        </div>
+        <form id="confirmForm">
+            <input type="hidden" id="userId" name="userId">
+            <input type="hidden" id="role" name="role">
+            <a href="/my-account" class="button cancel-btn">No, take me back</a>
+            <button type="submit" class="button confirm-btn">Yes</button>
+        </form>
+    </div>
+
+    <script>
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        const newRole = urlParams.get('role');
+
+        // Update the form with the parameters
+        document.getElementById('userId').value = userId;
+        document.getElementById('role').value = newRole;
+
+        // Fetch user details
+        fetch(`/api/user/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.user) {
+                    document.getElementById('username').textContent = data.user.username;
+                    document.getElementById('newRole').textContent = newRole;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+
+        // Handle form submission
+        document.getElementById('confirmForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            fetch(`/api/user/users/${userId}/role`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ role: newRole })
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/my-account';
+                }
+            })
+            .catch(error => {
+                console.error('Error changing user role:', error);
+            });
+        });
+    </script>
+</body>
+</html> 

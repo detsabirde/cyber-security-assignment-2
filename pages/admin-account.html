@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <style>
+      .admin-container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .user-info {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+      .info-item {
+        margin: 10px 0;
+        font-size: 16px;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #333;
+      }
+      .admin-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+      .admin-section h3 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+      .user-select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .user-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .action-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .delete-btn {
+        background: #dc3545;
+        color: white;
+      }
+      .delete-btn:hover {
+        background: #c82333;
+      }
+      .role-btn {
+        background: #007bff;
+        color: white;
+      }
+      .role-btn:hover {
+        background: #0056b3;
+      }
+      .logout-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 20px;
+      }
+      .logout-btn:hover {
+        background: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <h2>Admin Dashboard</h2>
+      <div class="user-info">
+        <div class="info-item">
+          <span class="info-label">Username:</span>
+          <span id="username"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Role:</span>
+          <span id="role"></span>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h3>User Management</h3>
+        <select id="userSelect" class="user-select">
+          <option value="">Select a user</option>
+        </select>
+        <div class="user-actions">
+          <button class="action-btn role-btn" onclick="changeUserRole()">
+            Upgrade User
+          </button>
+          <button class="action-btn delete-btn" onclick="deleteSelectedUser()">
+            Delete User
+          </button>
+        </div>
+      </div>
+
+      <a href="#" onclick="handleLogout()" class="logout-btn">Logout</a>
+    </div>
+
+    <script>
+      let users = []; // Store users globally
+
+      // Get admin info from session
+      fetch("/api/user/me")
+        .then((response) => {
+          console.log("Response status:", response.status);
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Response data:", data);
+          if (data.user) {
+            document.getElementById("username").textContent =
+              data.user.username;
+            document.getElementById("role").textContent = data.user.role;
+
+            // Only fetch users if the user is an admin
+            if (data.user.role === "Admin") {
+              fetchUsers();
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+
+      // Function to fetch and display users
+      function fetchUsers() {
+        fetch("/api/user/users")
+          .then((response) => response.json())
+          .then((data) => {
+            users = data.users; // Store users
+            const userSelect = document.getElementById("userSelect");
+            userSelect.innerHTML = '<option value="">Select a user</option>';
+
+            data.users.forEach((user) => {
+              const option = document.createElement("option");
+              option.value = user._id;
+              option.textContent = `${user.username} (${user.role})`;
+              userSelect.appendChild(option);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching users:", error);
+          });
+      }
+
+      // Function to change user role
+      function changeUserRole() {
+  const userSelect = document.getElementById("userSelect");
+  const userId = userSelect.value;
+
+  if (!userId) {
+    alert("Please select a user first");
+    return;
+  }
+
+  const user = users.find((u) => u._id === userId);
+  if (!user) {
+    alert("User not found.");
+    return;
+  }
+
+  fetch("/api/auth/upgradeUser", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      username: user.username,
+      userId: user._id,
+      action: "upgrade",
+    }),
+  })
+    .then((response) => {
+      //  insert html in case of response 
+      return response.text().then((text) => {
+        const contentType = response.headers.get("Content-Type");
+        if (contentType && contentType.includes("text/html")) {
+          document.open();
+          document.write(text);
+          document.close();
+        } else {
+          const data = JSON.parse(text);
+          console.log("Response:", data);
+        }
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+
+      // Function to delete selected user
+      function deleteSelectedUser() {
+        const userSelect = document.getElementById("userSelect");
+        const userId = userSelect.value;
+
+        if (!userId) {
+          alert("Please select a user first");
+          return;
+        }
+
+        const user = users.find((u) => u._id === userId);
+        if (!user) return;
+
+        if (confirm(`Are you sure you want to delete ${user.username}?`)) {
+          fetch(`/api/user/users/${userId}`, {
+            method: "DELETE",
+          })
+            .then((response) => {
+              if (response.ok) {
+                fetchUsers(); // Refresh the user list
+              }
+            })
+            .catch((error) => {
+              console.error("Error deleting user:", error);
+            });
+        }
+      }
+
+      // Function to handle logout
+      function handleLogout() {
+        fetch("/api/auth/logout")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.redirectTo) {
+              window.location.href = data.redirectTo;
+            }
+          })
+          .catch((error) => {
+            console.error("Error logging out:", error);
+          });
+      }
+    </script>
+  </body>
+</html>

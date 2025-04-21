@@ -49,23 +49,26 @@ router.post("/register", async (req, res) => {
       email: req.body.email,
       username: req.body.username,
       password: req.body.password,
-      isAdmin: req.body.isAdmin || false,
+      // role: req.body.role || false,
     });
 
     // Save user to DB
     const result = await user.save();
+    // Store user info in session (excluding password)
+    req.session.user = {
+      id: user._id,
+      username: user.username,
+      role: user.role,
+    };
+    console.log("Session after register:", req.session.user);
+    const { password, ...userData } = user._doc;
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    // Send response and redirect to /my-account
+    res.status(200).json({
+      message: "register successful",
+      user: userData,
+      redirectTo: "/my-account",
     });
-
-    // Exclude password from response
-    const { password, ...userData } = result._doc;
-    userData.token = token;
-
-    // Send response
-    res.status(201).json(userData);
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "An internal server error occurred" });
@@ -110,10 +113,9 @@ router.post("/login", loginLimiter, async (req, res) => {
     req.session.user = {
       id: user._id,
       username: user.username,
-      isAdmin: user.isAdmin, // or any fields you want to store
+      role: user.role,
     };
     console.log("Session after login:", req.session.user);
-    // Optional: remove password from response
     const { password, ...userData } = user._doc;
 
     // Send response and redirect to /my-account
@@ -121,12 +123,87 @@ router.post("/login", loginLimiter, async (req, res) => {
       message: "Login successful",
       user: userData,
       redirectTo: "/my-account",
-    }) // This will redirect after login
+    });
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "An internal server error occurred" });
   }
 });
+/**
+ * @desc  Upgrade user
+ * @route /api/auth/upgradeUser
+ * @method post
+ * @access private
+ *
+ **/
 
+
+router.post("/upgradeUser", async (req, res) => {
+  const { username, userId, action, confirmed } = req.body;
+
+  //  Check if the request user is logged in and is an Admin
+  // if (!req.session?.user || req.session.user.role !== "Admin") {
+  //   return res.status(403).json({ message: "Access denied. Admins only." });
+  // }
+  if (!confirmed && (!req.session?.user || req.session.user.role !== "Admin")) {
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+
+  // Check for missing fields
+  if (!username && !userId && !action) {
+
+    return res.status(400).json({ message: "Please select a user." });
+  }
+
+  // erve confirmation page 
+  if (!confirmed) {
+    return res.sendFile(path.resolve(__dirname, "..", "pages", "confirm-role.html"));
+  }
+
+  try {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist." });
+    }
+
+    user.role = "Admin";
+    const result = await user.save();
+
+    return res.status(200).json({
+      message: "User upgraded successfully.",
+      user: {
+        id: result._id,
+        username: result.username,
+        newRole: result.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error upgrading user:", error);
+    return res.status(500).json({ message: "Something went wrong." });
+  }
+});
+
+
+
+/**
+ * @desc  Logout
+ * @route /api/auth/logout
+ * @method get
+ * @access private
+ *
+ **/
+router.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).json({ message: "Error logging out" });
+    }
+    res.clearCookie("connect.sid");
+    res.status(200).json({
+      redirectTo: "/login",
+    });
+  });
+});
 
 module.exports = router;
