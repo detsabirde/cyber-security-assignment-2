@@ -24,31 +24,36 @@ const userSchema = new mongoose.Schema(
       trim: true,
       minlenght: 6,
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
+    // isAdmin: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    role: {
+      type: String,
+      enum:["Admin","User"],
+      default: "User",
     },
   },
   { timestamps: true }
 );
 
 // validate update
-function validateUpdateUser(obj) {
-  const schema = Joi.object({
-    email: Joi.string().trim().min(5).max(100).email(),
-    username: Joi.string().trim().min(2).max(200),
-    password: Joi.string().trim().min(6),
-    isAdmin: Joi.bool(),
-  });
-  return schema.validate(obj);
-}
+// function validateUpdateUser(obj) {
+//   const schema = Joi.object({
+//     email: Joi.string().trim().min(5).max(100).email(),
+//     username: Joi.string().trim().min(2).max(200),
+//     password: Joi.string().trim().min(6),
+//     isAdmin: Joi.bool(),
+//   });
+//   return schema.validate(obj);
+// }
 // validate Register user
 function validateRegisterUser(obj) {
     const schema = Joi.object({
       email: Joi.string().trim().min(5).max(100).required().email(),
       username: Joi.string().trim().min(2).max(200).required(),
       password: Joi.string().trim().min(6).required(),
-      isAdmin: Joi.bool(),
+      // isAdmin: Joi.bool(),
     });
     return schema.validate(obj);
   }
@@ -65,6 +70,5 @@ const User = mongoose.model("User", userSchema);
 module.exports = {
   User,
   validateRegisterUser,
-  validateUpdateUser,
   validateLoginUser,
 };
