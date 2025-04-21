@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        a{
-            margin-right: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div style="width: 100%; height: 50px; background-color: aquamarine; display: flex; justify-content: flex-end;
-    align-items: center;">
-        <a href="/">Home</a>
-        <a href="/login" >My account</a>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center">
+
+  <!-- Navbar -->
+  <nav class="w-full bg-aquamarine px-6 py-3 flex justify-end space-x-6 text-black shadow">
+    <a href="/" class="hover:underline">Home</a>
+    <a href="/login" class="hover:underline">My Account</a>
+  </nav>
+
+  <!-- Credentials Box -->
+  <div class="mt-10 bg-white shadow-md rounded-lg p-6 w-96 text-center">
+    <div class="mb-4">
+      <p class="font-semibold">Admin Credentials</p>
+      <p class="text-gray-700">admin@admin.com : Admin123</p>
     </div>
+    <div>
+      <p class="font-semibold">User Credentials</p>
+      <p class="text-gray-700">normalUser@gmail.com : normalUser</p>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
@@ -83,7 +84,7 @@ router.post("/register", async (req, res) => {
  *
  **/
 // Login route
-router.post("/login", loginLimiter, async (req, res) => {
+router.post("/login", async (req, res) => {
   // Validation
   const { error } = validateLoginUser(req.body);
   if (error) {
@@ -129,6 +130,7 @@ router.post("/login", loginLimiter, async (req, res) => {
     res.status(500).json({ message: "An internal server error occurred" });
   }
 });
+
 /**
  * @desc  Upgrade user
  * @route /api/auth/upgradeUser
@@ -136,33 +138,28 @@ router.post("/login", loginLimiter, async (req, res) => {
  * @access private
  *
  **/
-
-
 router.post("/upgradeUser", async (req, res) => {
-  const { username, userId, action, confirmed } = req.body;
-
-  //  Check if the request user is logged in and is an Admin
-  // if (!req.session?.user || req.session.user.role !== "Admin") {
-  //   return res.status(403).json({ message: "Access denied. Admins only." });
-  // }
+  const { username, action, confirmed } = req.body;
+  // vaunrable
   if (!confirmed && (!req.session?.user || req.session.user.role !== "Admin")) {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
 
-  // Check for missing fields
-  if (!username && !userId && !action) {
-
+  if (!username && !action) {
     return res.status(400).json({ message: "Please select a user." });
   }
 
-  // erve confirmation page 
+  // serve confirmation page
   if (!confirmed) {
-    return res.sendFile(path.resolve(__dirname, "..", "pages", "confirm-role.html"));
+    return res.render("confirm-role", {
+      username,
+      role: "Admin",
+    });
   }
 
   try {
-    const user = await User.findById(userId);
-    
+    const user = await User.findOne({ username });
+
     if (!user) {
       return res.status(404).json({ message: "User does not exist." });
     }
@@ -180,6 +177,49 @@ router.post("/upgradeUser", async (req, res) => {
     });
   } catch (error) {
     console.error("Error upgrading user:", error);
+    return res.status(500).json({ message: "Something went wrong." });
+  }
+});
+
+/**
+ * @desc  downGrade user
+ * @route /api/auth/upgradeUser
+ * @method post
+ * @access private
+ *
+ **/
+router.post("/downGradeUser", async (req, res) => {
+  const { username, action } = req.body;
+  console.log(`${username},${userId},${action}`);
+
+  if (!req.session?.user || req.session.user.role !== "Admin") {
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+
+  if (!username  && !action) {
+    return res.status(400).json({ message: "Please select a user." });
+  }
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist." });
+    }
+
+    user.role = "User";
+    const result = await user.save();
+
+    return res.status(200).json({
+      message: "User downGraded successfully.",
+      user: {
+        id: result._id,
+        username: result.username,
+        newRole: result.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error downGrading user:", error);
     return res.status(500).json({ message: "Something went wrong." });
   }
 });

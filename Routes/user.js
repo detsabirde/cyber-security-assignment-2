@@ -71,33 +71,33 @@ router.delete("/users/:id", async (req, res) => {
  * @access private (admin only)
  *
  **/
-router.put("/users/:id/role", async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'Admin') {
-    return res.status(403).json({ message: "Access denied" });
-  }
+// router.put("/users/:id/role", async (req, res) => {
+//   if (!req.session.user || req.session.user.role !== 'Admin') {
+//     return res.status(403).json({ message: "Access denied" });
+//   }
 
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//   try {
+//     const user = await User.findById(req.params.id);
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    // Update role
-    user.role = req.body.role;
-    await user.save();
+//     // Update role
+//     user.role = req.body.role;
+//     await user.save();
 
-    res.status(200).json({ 
-      message: "User role updated successfully",
-      user: {
-        _id: user._id,
-        username: user.username,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ message: "An internal server error occurred" });
-  }
-});
+//     res.status(200).json({ 
+//       message: "User role updated successfully",
+//       user: {
+//         _id: user._id,
+//         username: user.username,
+//         role: user.role
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Database error:", error);
+//     res.status(500).json({ message: "An internal server error occurred" });
+//   }
+// });
 
 module.exports = router; 

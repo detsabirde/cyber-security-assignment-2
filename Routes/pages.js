@@ -18,8 +18,6 @@ router.get("/register", redirectIfAuthenticated, (req, res) => {
 router.get("/my-account", verifySession, (req, res) => {
   console.log("Session exists for user:", req.session.user);
   // Check if user is admin
-  console.log();
-  
   if (req.session.user.role === 'Admin') {
     res.sendFile(path.resolve(__dirname, "..", "pages", "admin-account.html"));
   } else {
@@ -29,6 +27,8 @@ router.get("/my-account", verifySession, (req, res) => {
 
 // Protected: Confirm Role Change
 router.get("/confirm-role.html", verifySession, (req, res) => {
+  console.log("/confirm-role.html");
+  
   if (req.session.user.role !== 'Admin') {
     return res.status(403).json({ message: "Access denied" });
   }
