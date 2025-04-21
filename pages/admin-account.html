@@ -210,7 +210,6 @@
           },
           body: new URLSearchParams({
             username: user.username,
-            userId: user._id,
             action: "upgrade",
           }),
         })
@@ -235,43 +234,42 @@
 
       // Function to downgrade user role
       function DownGradeUserRole() {
-  const userSelect = document.getElementById("userSelect");
-  const userId = userSelect.value;
+        const userSelect = document.getElementById("userSelect");
+        const userId = userSelect.value;
 
-  if (!userId) {
-    alert("Please select a user first");
-    return;
-  }
+        if (!userId) {
+          alert("Please select a user first");
+          return;
+        }
 
-  const user = users.find((u) => u._id === userId);
-  if (!user) {
-    alert("User not found.");
-    return;
-  }
+        const user = users.find((u) => u._id === userId);
+        if (!user) {
+          alert("User not found.");
+          return;
+        }
 
-  fetch("/api/auth/downGradeUser", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      username: user.username,
-      userId: user._id,
-      action: "downgrade",
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.message) {
-        fetchUsers(); // Refresh user list
-        showToast(data.message);
+        fetch("/api/auth/downGradeUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            username: user.username,
+            action: "downgrade",
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message) {
+              fetchUsers(); // Refresh user list
+              showToast(data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            showToast("An error occurred.", "#dc3545");
+          });
       }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      showToast("An error occurred.", "#dc3545");
-    });
-}
 
       // Function to delete selected user
       function deleteSelectedUser() {

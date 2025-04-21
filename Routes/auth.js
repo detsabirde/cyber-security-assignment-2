@@ -139,14 +139,13 @@ router.post("/login", async (req, res) => {
  *
  **/
 router.post("/upgradeUser", async (req, res) => {
-  const { username, userId, action, confirmed } = req.body;
-  console.log(`${username},${userId},${action},${confirmed}`);
-
+  const { username, action, confirmed } = req.body;
+  // vaunrable
   if (!confirmed && (!req.session?.user || req.session.user.role !== "Admin")) {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
 
-  if (!username && !userId && !action) {
+  if (!username && !action) {
     return res.status(400).json({ message: "Please select a user." });
   }
 
@@ -154,7 +153,6 @@ router.post("/upgradeUser", async (req, res) => {
   if (!confirmed) {
     return res.render("confirm-role", {
       username,
-      userId,
       role: "Admin",
     });
   }
@@ -191,14 +189,14 @@ router.post("/upgradeUser", async (req, res) => {
  *
  **/
 router.post("/downGradeUser", async (req, res) => {
-  const { username, userId, action, confirmed } = req.body;
+  const { username, action } = req.body;
   console.log(`${username},${userId},${action}`);
 
   if (!req.session?.user || req.session.user.role !== "Admin") {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
 
-  if (!username && !userId && !action) {
+  if (!username  && !action) {
     return res.status(400).json({ message: "Please select a user." });
   }
 
