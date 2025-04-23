@@ -69,15 +69,18 @@
         })
         .then((data) => {
           console.log("Response data:", data);
-          if (data.user.role === "User") {
-            console.log("test1");
-          } else {
-            window.location.href = "/login";
-          }
+
           if (data.user) {
             document.getElementById("username").textContent =
               data.user.username;
             document.getElementById("role").textContent = data.user.role;
+            if (data.user.role !== "User") {
+              // redirect admins or others away from this page
+              window.location.href = "/login"; 
+            }
+          }
+          else{
+            window.location.href = "/login"; // not logged in
           }
         })
         .catch((error) => {
