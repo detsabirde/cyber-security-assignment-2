@@ -159,6 +159,8 @@
             // Only fetch users if the user is an admin
             if (data.user.role === "Admin") {
               fetchUsers();
+            } else {
+              window.location.href = "/login";
             }
           }
         })
