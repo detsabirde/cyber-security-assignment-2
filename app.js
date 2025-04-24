@@ -3,10 +3,11 @@ const path = require("path");
 const {ConnectToOnlineDB} = require("./config/db")
 const dotenv = require("dotenv");
 const cors = require("cors");
+const morgan = require('morgan');
 const session = require("express-session");
 
 // Middlewares
-const logger = require("./middlewares/logger");
+// const logger = require("./middlewares/logger");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 const { verifySession } = require("./middlewares/verifySession");
 
@@ -25,8 +26,8 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use(logger);
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+// app.use(logger);
 // Static Pages
 app.use(express.static(path.resolve(__dirname, "pages")));
 // ejs
