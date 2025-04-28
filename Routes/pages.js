@@ -19,9 +19,9 @@ router.get("/my-account", verifySession, (req, res) => {
   console.log("Session exists for user:", req.session.user);
   // Check if user is admin
   if (req.session.user.role === 'Admin') {
-    res.sendFile(path.resolve(__dirname, "..", "pages", "admin-account.html"));
+    res.sendFile(path.resolve(__dirname, "..", "protected", "admin-account.html"));
   } else {
-    res.sendFile(path.resolve(__dirname, "..", "pages", "account.html"));
+    res.sendFile(path.resolve(__dirname, "..", "protected", "account.html"));
   }
 });
 
